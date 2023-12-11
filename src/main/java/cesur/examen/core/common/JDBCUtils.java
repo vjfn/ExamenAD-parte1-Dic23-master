@@ -10,8 +10,8 @@ import java.util.Properties;
  * EXAMEN DE ACCESO A DATOS
  * Diciembre 2023
  *
- * Nombre del alumno:
- * Fecha:
+ * Nombre del alumno:Victor Jesus Fernandez Noguer
+ * Fecha: 11/12/2023
  *
  * No se permite escribir en consola desde las clases DAO, Service y Utils usando System.out.
  * En su lugar, usa log.info(), log.warning() y log.severe() para mostrar información interna
@@ -27,7 +27,7 @@ public class JDBCUtils {
      * Remember to open an InputStream to a file located in resource folder using
      * JDBCUtils.class.getClassLoader().getResourceAsStream()
      */
-    private static final Connection conn;
+    private static Connection conn;
 
     static{
 
@@ -35,6 +35,11 @@ public class JDBCUtils {
 
             conn = null;
             /* Make implementation here ...  */
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/examenad";
+            String username = "root";
+            String password = "";
+            conn = DriverManager.getConnection(url,username, password);
 
             if(conn==null) log.info("JDBCUtils Not implemented yet!");
             else log.info("Succesfully connected!");

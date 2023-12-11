@@ -12,8 +12,8 @@ import java.util.List;
  * EXAMEN DE ACCESO A DATOS
  * Diciembre 2023
  *
- * Nombre del alumno:
- * Fecha:
+ * Nombre del alumno:Victor Jesus Fernandez Noguer
+ * Fecha: 11/12/2023
  *
  * No se permite escribir en consola desde las clases DAO, Service y Utils usando System.out.
  * En su lugar, usa log.info(), log.warning() y log.severe() para mostrar información interna
@@ -22,9 +22,9 @@ import java.util.List;
 @Log public class WorkerDAO implements DAO<Worker> {
 
     /* Please, use this constants for the queries */
-    private final String QUERY_ORDER_BY = "";
+    private final String QUERY_ORDER_BY = " select * from trabajador order by desde";
     private final String QUERY_BY_DNI = "Select * from trabajador where dni=?";
-    private final String UPDATE_BY_ID = "";
+    private final String UPDATE_BY_ID = "update trabajador set nombre=?, dni=?, desde=? where id=?";
 
     @Override
     public Worker save(Worker worker) {
@@ -43,6 +43,25 @@ import java.util.List;
 
         /* Make implementation here ...  */
 
+        try (PreparedStatement st = JDBCUtils.getConn().prepareStatement(UPDATE_BY_ID)) {
+            st.setString(1, worker.getName());
+            st.setString(2, worker.getDni());
+            st.setDate(3, new java.sql.Date(worker.getFrom().getTime()));
+            st.setLong(4, worker.getId());
+
+            int rowsAffected = st.executeUpdate();
+
+            if (rowsAffected > 0) {
+                out = worker;
+                log.info("Triying to update worker" + out);
+            } else {
+                log.warning("No se encontró el trabajador para update.");
+            }
+        } catch (SQLException e) {
+            log.severe("Error en el método update(): " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+
         return out;
     }
 
@@ -57,7 +76,7 @@ import java.util.List;
     }
 
     /**
-     * Retrieve the worker that has this dni. Null if there is no wrker.
+     * Retrieve the worker that has this dni. Null if there is no worker.
      * @param dni
      * @return
      */
@@ -75,6 +94,7 @@ import java.util.List;
             st.setString(1,dni);
             ResultSet rs = st.executeQuery();
             if(rs.next()){
+
                 Worker w = new Worker();
                 w.setId( rs.getLong("id") );
                 w.setName( rs.getString("nombre"));
@@ -104,7 +124,21 @@ import java.util.List;
         ArrayList<Worker> out = new ArrayList<>(0);
 
         /* Make implementation here ...  */
-
+        try (Statement st = JDBCUtils.getConn().createStatement()){
+            ResultSet rs = st.executeQuery(QUERY_ORDER_BY);
+            while (rs.next()){
+                Worker worker = new Worker();
+                worker.setId(rs.getLong("id"));
+                worker.setName(rs.getString("nombre"));
+                worker.setDni(rs.getString("dni"));
+                worker.setFrom(rs.getDate("desde"));
+                out.add(worker);
+            }
+            log.info("Worker updated" + out);
+        } catch (SQLException e) {
+            log.severe("Error al añadir trabajadores!!");
+            throw new RuntimeException(e);
+        }
         return out;
     }
 }

@@ -6,8 +6,8 @@ import java.util.Date;
  * EXAMEN DE ACCESO A DATOS
  * Diciembre 2023
  *
- * Nombre del alumno:
- * Fecha:
+ * Nombre del alumno:Victor Jesus Fernandez Noguer
+ * Fecha: 11/12/2023
  *
  *  No se permite escribir en consola desde las clases DAO, Service y Utils usando System.out.
  *  En su lugar, usa log.info(), log.warning() y log.severe() para mostrar información interna
@@ -27,11 +27,27 @@ public class WorkerService {
     Remember Date().
     Returns the new updated worker, null if fails or dni doesn't exist.
     */
+    private static final WorkerDAO workerDAO = new WorkerDAO();
     public static Worker renovateWorker(String dni){
-        Worker out = null;
 
         /* Make implementation here ...  */
 
-        return out;
+        Worker workerU = workerDAO.getWorkerByDNI(dni);
+
+        if(workerU != null){
+
+            Date currentDate = new Date(System.currentTimeMillis()); //Fecha actual
+            workerU.setFrom(currentDate); //Coloca fecha en el campo
+            Worker updatedWorker = workerDAO.update(workerU); //Actualizacion de worker en db
+
+            if (updatedWorker != null) {
+                return updatedWorker;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+
     }
 }
